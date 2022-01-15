@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Kesesuaian Kawasan Permukiman</title>
+    <link rel="stylesheet" href="library/leaflet/leaflet.css" />
+    <link rel="stylesheet" href="css/style.css" />
+    <script src="library/leaflet/leaflet.js"></script>
+    <script src="library/leaflet-providers-master/leaflet-providers.js"></script>
+    <script src="library/jquery.min.js"></script>
+</head>
+
+<body>
+    <div id="map">
+        <script>
+            var map = L.map('map').setView([-7.864498693851013, 110.36600519115059], 13);
+
+            var baseLayers = {
+                'Esri WorldTopoMap': L.tileLayer.provider('Esri.WorldTopoMap'),
+                'Esri WorldImagery': L.tileLayer.provider('Esri.WorldImagery').addTo(map),
+                'OSM Default': L.tileLayer.provider('OpenStreetMap.DE'),
+                'OSM France': L.tileLayer.provider('OpenStreetMap.France')
+            };
+
+
+            /* Memanggil Layer Kesesuaian Kawasan Permukiman */
+            var KawasanPermukiman = L.geoJson(null, {
+                style: function(feature) {
+                    return {
+                        color: "black",
+                        fillColor: KlsKesesuaian[feature.properties.kesesuaian],
+                        weight: 0.3,
+                        opacity: 0,
+                        fillOpacity: 0.5
+                    };
+                },
+                onEachFeature: function( feature, layer ){
+                    layer.bindPopup(
+                        "Kelas Kesesuaian : " + "<left>" + feature.properties.kesesuaian + "</left>" + "<br>" +
+                        "Luas :" + "<left>" + feature.properties.LUAS + "</left>" + " m2"
+                        )
+                }
+            });
+            $.getJSON("data/joss.json", function(data) {
+                KawasanPermukiman.addData(data);
+            });
+
+			/* Merubah Tampilan Warna Berdasar Atribut Kesesuaian Kawasan Permukiman */
+			var KlsKesesuaian = {
+				"Sesuai":"#00ff1a",
+				"Kurang Sesuai":"#fff200",
+				"Tidak Sesuai":"#ff0000"
+			};
+
+            var mapLayers = {
+                'Kesesuaian Kawasan Perumahan': KawasanPermukiman
+            };
+
+            L.control.layers(baseLayers, mapLayers).addTo(map);
+        </script>
+    </div>
+</body>
+
+</html>
